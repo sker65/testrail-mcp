@@ -1,4 +1,4 @@
-"""Entry point for the TestRail MCP server."""
+"""Entry point for the TestRail MCP server when run as a module."""
 import sys
 import asyncio
 
