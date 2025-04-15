@@ -1,5 +1,7 @@
 # TestRail MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@sker65/testrail-mcp)](https://smithery.ai/server/@sker65/testrail-mcp)
+
 A Model Context Protocol (MCP) server for TestRail that allows interaction with TestRail's core entities through a standardized protocol.
 
 ## Features
@@ -16,6 +18,15 @@ A Model Context Protocol (MCP) server for TestRail that allows interaction with 
 
 ## Installation
 
+### Installing via Smithery
+
+To install testrail-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@sker65/testrail-mcp):
+
+```bash
+npx -y @smithery/cli install @sker65/testrail-mcp --client claude
+```
+
+### Manual Installation
 1. Clone this repository:
    ```bash
    git clone https://github.com/yourusername/testrail-mcp.git
