@@ -4,9 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "testrail-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "TestRail MCP Server"
 readme = "README.md"
+authors = [
+    {name = "Stefan Rinke", email = "sker65@gmail.com"}
+]
+maintainers = [
+    {name = "Stefan Rinke", email = "sker65@gmail.com"}
+]
 requires-python = ">=3.10"
 license = {text = "MIT"}
 dependencies = [
