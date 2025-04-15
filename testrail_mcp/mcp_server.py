@@ -19,17 +19,17 @@ class TestRailMCPServer(FastMCP):
     def _register_tools(self):
         """Register all TestRail tools with the MCP server."""
         # Project tools
-        @self.tool("Get a project by ID")
+        @self.tool("get_project", description="Get a project by ID")
         def get_project(project_id: int) -> Dict:
             """Get a project by ID."""
             return self.client.get_project(project_id)
         
-        @self.tool("Get all projects")
+        @self.tool("get_projects", description="Get all projects")
         def get_projects() -> List[Dict]:
             """Get all projects."""
             return self.client.get_projects()
         
-        @self.tool("Add a new project")
+        @self.tool("add_project", description="Add a new project")
         def add_project(
             name: str,
             announcement: Optional[str] = None,
@@ -54,7 +54,7 @@ class TestRailMCPServer(FastMCP):
                 data['suite_mode'] = suite_mode
             return self.client.add_project(data)
         
-        @self.tool("Update an existing project")
+        @self.tool("update_project", description="Update an existing project")
         def update_project(
             project_id: int,
             name: Optional[str] = None,
@@ -83,7 +83,7 @@ class TestRailMCPServer(FastMCP):
                 data['is_completed'] = is_completed
             return self.client.update_project(project_id, data)
         
-        @self.tool("Delete a project")
+        @self.tool("delete_project", description="Delete a project")
         def delete_project(project_id: int) -> Dict:
             """
             Delete a project.
@@ -94,7 +94,7 @@ class TestRailMCPServer(FastMCP):
             return self.client.delete_project(project_id)
         
         # Case tools
-        @self.tool("Get a test case by ID")
+        @self.tool("get_case", description="Get a test case by ID")
         def get_case(case_id: int) -> Dict:
             """
             Get a test case by ID.
@@ -104,7 +104,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_case(case_id)
         
-        @self.tool("Get all test cases for a project/suite")
+        @self.tool("get_cases", description="Get all test cases for a project/suite")
         def get_cases(project_id: int, suite_id: Optional[int] = None) -> List[Dict]:
             """
             Get all test cases for a project/suite.
@@ -115,7 +115,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_cases(project_id, suite_id)
         
-        @self.tool("Add a new test case")
+        @self.tool("add_case", description="Add a new test case")
         def add_case(
             section_id: int,
             title: str,
@@ -150,7 +150,7 @@ class TestRailMCPServer(FastMCP):
                 data['refs'] = refs
             return self.client.add_case(section_id, data)
         
-        @self.tool("Update an existing test case")
+        @self.tool("update_case", description="Update an existing test case")
         def update_case(
             case_id: int,
             title: Optional[str] = None,
@@ -187,7 +187,7 @@ class TestRailMCPServer(FastMCP):
                 data['refs'] = refs
             return self.client.update_case(case_id, data)
         
-        @self.tool("Delete a test case")
+        @self.tool("delete_case", description="Delete a test case")
         def delete_case(case_id: int) -> Dict:
             """
             Delete a test case.
@@ -198,7 +198,7 @@ class TestRailMCPServer(FastMCP):
             return self.client.delete_case(case_id)
         
         # Run tools
-        @self.tool("Get a test run by ID")
+        @self.tool("get_run", description="Get a test run by ID")
         def get_run(run_id: int) -> Dict:
             """
             Get a test run by ID.
@@ -208,7 +208,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_run(run_id)
         
-        @self.tool("Get all test runs for a project")
+        @self.tool("get_runs", description="Get all test runs for a project")
         def get_runs(project_id: int) -> List[Dict]:
             """
             Get all test runs for a project.
@@ -218,7 +218,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_runs(project_id)
         
-        @self.tool("Add a new test run")
+        @self.tool("add_run", description="Add a new test run")
         def add_run(
             project_id: int,
             suite_id: int,
@@ -258,7 +258,7 @@ class TestRailMCPServer(FastMCP):
                 data['case_ids'] = case_ids
             return self.client.add_run(project_id, data)
         
-        @self.tool("Update an existing test run")
+        @self.tool("update_run", description="Update an existing test run")
         def update_run(
             run_id: int,
             name: Optional[str] = None,
@@ -295,7 +295,7 @@ class TestRailMCPServer(FastMCP):
                 data['case_ids'] = case_ids
             return self.client.update_run(run_id, data)
         
-        @self.tool("Close an existing test run")
+        @self.tool("close_run", description="Close an existing test run")
         def close_run(run_id: int) -> Dict:
             """
             Close an existing test run.
@@ -305,7 +305,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.close_run(run_id)
         
-        @self.tool("Delete a test run")
+        @self.tool("delete_run", description="Delete a test run")
         def delete_run(run_id: int) -> Dict:
             """
             Delete a test run.
@@ -316,7 +316,7 @@ class TestRailMCPServer(FastMCP):
             return self.client.delete_run(run_id)
         
         # Results tools
-        @self.tool("Get all test results for a test")
+        @self.tool("get_results", description="Get all test results for a test")
         def get_results(test_id: int) -> List[Dict]:
             """
             Get all test results for a test.
@@ -326,7 +326,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_results(test_id)
         
-        @self.tool("Add a new test result")
+        @self.tool("add_result", description="Add a new test result")
         def add_result(
             test_id: int,
             status_id: int,
@@ -364,7 +364,7 @@ class TestRailMCPServer(FastMCP):
             return self.client.add_result(test_id, data)
         
         # Dataset tools
-        @self.tool("Get a dataset by ID")
+        @self.tool("get_dataset", description="Get a dataset by ID")
         def get_dataset(dataset_id: int) -> Dict:
             """
             Get a dataset by ID.
@@ -374,7 +374,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_dataset(dataset_id)
         
-        @self.tool("Get all datasets for a project")
+        @self.tool("get_datasets", description="Get all datasets for a project")
         def get_datasets(project_id: int) -> List[Dict]:
             """
             Get all datasets for a project.
@@ -384,7 +384,7 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_datasets(project_id)
         
-        @self.tool("Add a new dataset")
+        @self.tool("add_dataset", description="Add a new dataset")
         def add_dataset(
             project_id: int,
             name: str,
@@ -405,7 +405,7 @@ class TestRailMCPServer(FastMCP):
                 data['description'] = description
             return self.client.add_dataset(project_id, data)
         
-        @self.tool("Update an existing dataset")
+        @self.tool("update_dataset", description="Update an existing dataset")
         def update_dataset(
             dataset_id: int,
             name: Optional[str] = None,
@@ -426,7 +426,7 @@ class TestRailMCPServer(FastMCP):
                 data['description'] = description
             return self.client.update_dataset(dataset_id, data)
         
-        @self.tool("Delete a dataset")
+        @self.tool("delete_dataset", description="Delete a dataset")
         def delete_dataset(dataset_id: int) -> Dict:
             """
             Delete a dataset.
