@@ -11,7 +11,7 @@ class TestRailMCPServer(FastMCP):
     
     def __init__(self):
         """Initialize the TestRail MCP server."""
-        super().__init__(name="TestRail MCP Server", version="0.1.0")
+        super().__init__(name="TestRail MCP Server", version="0.1.2")
         self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
         self._register_tools()
         self._register_resources()
