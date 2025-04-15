@@ -74,8 +74,10 @@ If you're using this server with a client like Claude Desktop or Cursor, make su
 
 ### Running the Server
 
+The server can be run directly as a Python module:
+
 ```bash
-python main.py
+python -m testrail_mcp
 ```
 
 This will start the MCP server in stdio mode, which can be used with MCP clients that support stdio communication.
@@ -87,8 +89,9 @@ This will start the MCP server in stdio mode, which can be used with MCP clients
 1. Open Claude Desktop
 2. Go to Settings > Servers
 3. Click "Install Server"
-4. Navigate to your project directory and select the `main.py` file
-5. Claude Desktop will now be able to use your TestRail MCP server
+4. Navigate to your project directory
+5. Select the Python module: `testrail_mcp`
+6. Claude Desktop will now be able to use your TestRail MCP server
 
 #### Cursor
 
@@ -97,7 +100,7 @@ This will start the MCP server in stdio mode, which can be used with MCP clients
 3. Click "Add Tool"
 4. Configure the tool:
    - Name: TestRail MCP
-   - Command: `python /path/to/testrail-mcp/main.py`
+   - Command: `python -m testrail_mcp`
    - Communication: Stdio
 5. Save the configuration
 
@@ -108,7 +111,7 @@ This will start the MCP server in stdio mode, which can be used with MCP clients
 3. Click "Add Tool"
 4. Configure the tool:
    - Name: TestRail MCP
-   - Command: `python /path/to/testrail-mcp/main.py`
+   - Command: `python -m testrail_mcp`
    - Protocol: MCP
 5. Save the configuration
 
@@ -117,7 +120,7 @@ This will start the MCP server in stdio mode, which can be used with MCP clients
 For testing and debugging, you can use the MCP Inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector stdio -- python main.py
+npx @modelcontextprotocol/inspector stdio -- python -m testrail_mcp
 ```
 
 This will open a web interface where you can explore and test all the available tools and resources.
