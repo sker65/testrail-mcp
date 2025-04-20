@@ -63,10 +63,10 @@ The TestRail MCP server requires specific environment variables to authenticate 
 
 2. Verify that the configuration is loaded correctly:
    ```bash
-   python -c "from testrail_mcp.config import TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY; print(f'URL: {TESTRAIL_URL}, Username: {TESTRAIL_USERNAME}, API Key: {TESTRAIL_API_KEY[:5]}...')"
+   uvx testrail-mcp --config
    ```
    
-   This should print your TestRail URL, username, and the first few characters of your API key.
+   This will display your TestRail configuration information, including your URL, username, and the first few characters of your API key for verification.
 
 If you're using this server with a client like Claude Desktop or Cursor, make sure the environment variables are accessible to the process running the server. You may need to set these variables in your system environment or ensure they're loaded from the `.env` file.
 
@@ -74,10 +74,10 @@ If you're using this server with a client like Claude Desktop or Cursor, make su
 
 ### Running the Server
 
-The server can be run directly as a Python module:
+The server can be run directly using the installed script:
 
 ```bash
-python -m testrail_mcp
+uvx testrail-mcp
 ```
 
 This will start the MCP server in stdio mode, which can be used with MCP clients that support stdio communication.
@@ -86,41 +86,76 @@ This will start the MCP server in stdio mode, which can be used with MCP clients
 
 #### Claude Desktop
 
-1. Open Claude Desktop
-2. Go to Settings > Servers
-3. Click "Install Server"
-4. Navigate to your project directory
-5. Select the Python module: `testrail_mcp`
-6. Claude Desktop will now be able to use your TestRail MCP server
+In Claude Desktop, add a new server with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "testrail": {
+      "command": "uvx",
+      "args": [
+        "testrail-mcp"
+      ],
+      "env": {
+        "TESTRAIL_URL": "https://your-instance.testrail.io",
+        "TESTRAIL_USERNAME": "your-email@example.com",
+        "TESTRAIL_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
 
 #### Cursor
 
-1. Open Cursor
-2. Go to Settings > AI > Custom Tools
-3. Click "Add Tool"
-4. Configure the tool:
-   - Name: TestRail MCP
-   - Command: `python -m testrail_mcp`
-   - Communication: Stdio
-5. Save the configuration
+In Cursor, add a new custom tool with the following configuration:
+
+```json
+{
+  "name": "TestRail MCP",
+  "command": "uvx",
+  "args": [
+    "testrail-mcp"
+  ],
+  "communication": "stdio",
+  "env": {
+    "TESTRAIL_URL": "https://your-instance.testrail.io",
+    "TESTRAIL_USERNAME": "your-email@example.com",
+    "TESTRAIL_API_KEY": "your-api-key"
+  }
+}
+```
 
 #### Winsurf
 
-1. Open Winsurf
-2. Go to Settings > Tools
-3. Click "Add Tool"
-4. Configure the tool:
-   - Name: TestRail MCP
-   - Command: `python -m testrail_mcp`
-   - Protocol: MCP
-5. Save the configuration
+In Winsurf, add a new tool with the following configuration:
+
+```json
+{
+  "name": "TestRail MCP",
+  "command": "uvx",
+  "args": [
+    "testrail-mcp"
+  ],
+  "protocol": "mcp",
+  "env": {
+    "TESTRAIL_URL": "https://your-instance.testrail.io",
+    "TESTRAIL_USERNAME": "your-email@example.com",
+    "TESTRAIL_API_KEY": "your-api-key"
+  }
+}
+```
 
 #### Testing with MCP Inspector
 
 For testing and debugging, you can use the MCP Inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector stdio -- python -m testrail_mcp
+npx @modelcontextprotocol/inspector \
+  -e TESTRAIL_URL=<your-url> \
+  -e TESTRAIL_USERNAME=<your-username> \
+  -e TESTRAIL_API_KEY=<your-api-key> \
+  uvx testrail-mcp
 ```
 
 This will open a web interface where you can explore and test all the available tools and resources.
