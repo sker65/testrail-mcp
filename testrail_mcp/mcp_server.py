@@ -123,7 +123,9 @@ class TestRailMCPServer(FastMCP):
             priority_id: Optional[int] = None,
             estimate: Optional[str] = None,
             milestone_id: Optional[int] = None,
-            refs: Optional[str] = None
+            refs: Optional[str] = None,
+            custom_steps_separated: Optional[List[Dict[str, str]]] = None,
+            steps_separated: Optional[List[Dict[str, str]]] = None
         ) -> Dict:
             """
             Add a new test case.
@@ -136,6 +138,16 @@ class TestRailMCPServer(FastMCP):
                 estimate: The estimate, e.g. '30s' or '1m 45s' (optional)
                 milestone_id: The ID of the milestone (optional)
                 refs: A comma-separated list of references (optional)
+                custom_steps_separated: A list of test steps (optional), each with fields:
+                    - content: The text contents of the "Step" field
+                    - expected: The text contents of the "Expected Result" field
+                    - additional_info: The text contents of the "Additional Info" field
+                    - refs: Reference information for the "References" field
+                steps_separated: A list of test steps (optional), each with fields:
+                    - content: The text contents of the "Step" field
+                    - expected: The text contents of the "Expected Result" field
+                    - additional_info: The text contents of the "Additional Info" field
+                    - refs: Reference information for the "References" field
             """
             data = {'title': title}
             if type_id is not None:
@@ -148,6 +160,10 @@ class TestRailMCPServer(FastMCP):
                 data['milestone_id'] = milestone_id
             if refs is not None:
                 data['refs'] = refs
+            if custom_steps_separated is not None:
+                data['custom_steps_separated'] = custom_steps_separated
+            if steps_separated is not None:
+                data['steps_separated'] = steps_separated
             return self.client.add_case(section_id, data)
         
         @self.tool("update_case", description="Update an existing test case")
@@ -158,7 +174,9 @@ class TestRailMCPServer(FastMCP):
             priority_id: Optional[int] = None,
             estimate: Optional[str] = None,
             milestone_id: Optional[int] = None,
-            refs: Optional[str] = None
+            refs: Optional[str] = None,
+            custom_steps_separated: Optional[List[Dict[str, str]]] = None,
+            steps_separated: Optional[List[Dict[str, str]]] = None
         ) -> Dict:
             """
             Update an existing test case.
@@ -171,6 +189,16 @@ class TestRailMCPServer(FastMCP):
                 estimate: The estimate, e.g. '30s' or '1m 45s' (optional)
                 milestone_id: The ID of the milestone (optional)
                 refs: A comma-separated list of references (optional)
+                custom_steps_separated: A list of test steps (optional), each with fields:
+                    - content: The text contents of the "Step" field
+                    - expected: The text contents of the "Expected Result" field
+                    - additional_info: The text contents of the "Additional Info" field
+                    - refs: Reference information for the "References" field
+                steps_separated: A list of test steps (optional), each with fields:
+                    - content: The text contents of the "Step" field
+                    - expected: The text contents of the "Expected Result" field
+                    - additional_info: The text contents of the "Additional Info" field
+                    - refs: Reference information for the "References" field
             """
             data = {}
             if title is not None:
@@ -185,6 +213,10 @@ class TestRailMCPServer(FastMCP):
                 data['milestone_id'] = milestone_id
             if refs is not None:
                 data['refs'] = refs
+            if custom_steps_separated is not None:
+                data['custom_steps_separated'] = custom_steps_separated
+            if steps_separated is not None:
+                data['steps_separated'] = steps_separated
             return self.client.update_case(case_id, data)
         
         @self.tool("delete_case", description="Delete a test case")
