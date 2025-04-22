@@ -14,7 +14,7 @@ A Model Context Protocol (MCP) server for TestRail that allows interaction with 
   - Results
   - Datasets
 - Full support for the Model Context Protocol
-- Compatible with any MCP client (Claude Desktop, Cursor, Winsurf, etc.)
+- Compatible with any MCP client (Claude Desktop, Cursor, Windsurf, etc.)
 
 ## Installation
 
@@ -117,7 +117,6 @@ In Cursor, add a new custom tool with the following configuration:
   "args": [
     "testrail-mcp"
   ],
-  "communication": "stdio",
   "env": {
     "TESTRAIL_URL": "https://your-instance.testrail.io",
     "TESTRAIL_USERNAME": "your-email@example.com",
@@ -126,9 +125,9 @@ In Cursor, add a new custom tool with the following configuration:
 }
 ```
 
-#### Winsurf
+#### Windsurf
 
-In Winsurf, add a new tool with the following configuration:
+In Windsurf, add a new tool with the following configuration:
 
 ```json
 {
@@ -137,7 +136,6 @@ In Winsurf, add a new tool with the following configuration:
   "args": [
     "testrail-mcp"
   ],
-  "protocol": "mcp",
   "env": {
     "TESTRAIL_URL": "https://your-instance.testrail.io",
     "TESTRAIL_USERNAME": "your-email@example.com",
