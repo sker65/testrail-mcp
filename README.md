@@ -16,6 +16,10 @@ A Model Context Protocol (MCP) server for TestRail that allows interaction with 
 - Full support for the Model Context Protocol
 - Compatible with any MCP client (Claude Desktop, Cursor, Windsurf, etc.)
 
+## See it in action together with Octomind MCP
+
+[![Video Title](https://img.youtube.com/vi/I7lc9I0S62Y/0.jpg)](https://www.youtube.com/watch?v=I7lc9I0S62Y)
+
 ## Installation
 
 ### Installing via Smithery
