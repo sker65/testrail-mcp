@@ -243,7 +243,7 @@ class TestRailMCPServer(FastMCP):
                 case_id: The ID of the test case
             """
             return self.client.delete_case(case_id)
-        # Case tools
+        # Section tools
         @self.tool("get_section", description="Retrieves details of a specific section by ID")
         def get_section(section_id: int) -> Dict:
             """
