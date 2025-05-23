@@ -124,6 +124,8 @@ class TestRailMCPServer(FastMCP):
             estimate: Optional[str] = None,
             milestone_id: Optional[int] = None,
             refs: Optional[str] = None,
+            custom_steps: Optional[str] = None,
+            custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
             steps_separated: Optional[List[Dict[str, str]]] = None
         ) -> Dict:
@@ -138,6 +140,8 @@ class TestRailMCPServer(FastMCP):
                 estimate: The estimate, e.g. '30s' or '1m 45s' (optional)
                 milestone_id: The ID of the milestone (optional)
                 refs: A comma-separated list of references (optional)
+                custom_steps: Steps as string
+                custom_expected: case expected result
                 custom_steps_separated: A list of test steps (optional), each with fields:
                     - content: The text contents of the "Step" field
                     - expected: The text contents of the "Expected Result" field
@@ -164,6 +168,10 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps_separated'] = custom_steps_separated
             if steps_separated is not None:
                 data['steps_separated'] = steps_separated
+            if custom_steps is not None:
+                data['custom_steps'] = custom_steps
+            if custom_expected is not None:
+                data['custom_expected'] = custom_expected
             return self.client.add_case(section_id, data)
         
         @self.tool("update_case", description="Update an existing test case")
@@ -175,6 +183,8 @@ class TestRailMCPServer(FastMCP):
             estimate: Optional[str] = None,
             milestone_id: Optional[int] = None,
             refs: Optional[str] = None,
+            custom_steps: Optional[str] = None,
+            custom_expected: Optional[str] = None,
             custom_steps_separated: Optional[List[Dict[str, str]]] = None,
             steps_separated: Optional[List[Dict[str, str]]] = None
         ) -> Dict:
@@ -189,6 +199,7 @@ class TestRailMCPServer(FastMCP):
                 estimate: The estimate, e.g. '30s' or '1m 45s' (optional)
                 milestone_id: The ID of the milestone (optional)
                 refs: A comma-separated list of references (optional)
+                custom_expected: case expected result
                 custom_steps_separated: A list of test steps (optional), each with fields:
                     - content: The text contents of the "Step" field
                     - expected: The text contents of the "Expected Result" field
@@ -217,6 +228,10 @@ class TestRailMCPServer(FastMCP):
                 data['custom_steps_separated'] = custom_steps_separated
             if steps_separated is not None:
                 data['steps_separated'] = steps_separated
+            if custom_steps is not None:
+                data['custom_steps'] = custom_steps
+            if custom_expected is not None:
+                data['custom_expected'] = custom_expected
             return self.client.update_case(case_id, data)
         
         @self.tool("delete_case", description="Delete a test case")
@@ -228,7 +243,115 @@ class TestRailMCPServer(FastMCP):
                 case_id: The ID of the test case
             """
             return self.client.delete_case(case_id)
-        
+        # Section tools
+        @self.tool("get_section", description="Retrieves details of a specific section by ID")
+        def get_section(section_id: int) -> Dict:
+            """
+            Get a section by ID.
+            
+            Args:
+                section_id: The ID of the section
+            """
+            return self.client.get_section(section_id)
+
+        @self.tool("get_sections", description="Retrieves all sections for a specified project and or suite")
+        def get_sections(
+            project_id : int,
+            suite_id: Optional[int] = None ) -> Dict:
+            """
+            Retrieves all sections for a specified project and suite
+            
+            Args:
+                project_id: The ID of the project
+                suite_id: The ID of the test suite (Optional)
+
+            """
+            return self.client.get_sections(project_id,suite_id)
+
+        @self.tool("add_section", description="Creates a new section in a TestRail project")
+        def add_section(
+            project_id : int,
+            name: str,
+            description: str,
+            suite_id: Optional[int] = None,
+            parent_id: Optional[int] = None) -> Dict:
+            """
+            Retrieves all sections for a specified project and suite
+            
+            Args:
+                project_id: The ID of the project
+                name: Name of the section
+                description: Description of the section
+                suite_id: The ID of the test suite (Optional)
+                parent_id: The ID of the parent
+
+            """
+            data = {}
+            data["name"] = name
+            data["description"] = description
+            if suite_id is not None:
+                data["suite_id"] = suite_id
+            if parent_id is not None:
+                data["parent_id"] = parent_id
+
+            return self.client.add_section(project_id,data)
+
+        @self.tool("update_section", description="Updates an existing section")
+        def update_section(
+            section_id : int,
+            name: Optional[str] = None,
+            description: Optional[str] = None) -> Dict:
+            """
+            Updates an existing section
+            
+            Args:
+                section_id: The ID of the section
+                name: Name of the section
+                description: Description of the section
+            """
+            data = {}
+            if name is not None:
+                data["name"] = name
+            if description is not None:
+                data["description"] = description
+
+            return self.client.update_section(section_id, data)
+
+        @self.tool("delete_section", description="Deletes a section")
+        def delete_section(
+            section_id : int,
+            soft: bool) -> Dict:
+            """
+            Deletes an existing section
+            
+            Args:
+                section_id: The ID of the section
+                soft: Omitting the soft parameter, or submitting soft=0 will delete the section and its test cases If soft=1, this will return data on the number of affected tests, cases, etc.
+            """
+
+            return self.client.delete_section(section_id, soft)
+
+        @self.tool("move_section", description="Moves a section to a new position in the test hierarchy")
+        def move_section(
+            section_id : int,
+            parent_id : Optional[int],
+            after_id : Optional[int]) -> Dict:
+            """
+            Moves a section to a new position in the test hierarchy
+            
+            Args:
+                section_id: The ID of the section
+                parent_id: ID of the new parent
+                after_id: ID of the section to be moved after
+            """
+            data = {}
+            if parent_id is not None:
+                data["parent_id"] = parent_id
+            if after_id is not None:
+                data["after_id"] = after_id
+
+            return self.client.move_section(section_id, data)
+
         # Run tools
         @self.tool("get_run", description="Get a test run by ID")
         def get_run(run_id: int) -> Dict:
@@ -519,3 +642,4 @@ class TestRailMCPServer(FastMCP):
                 dataset_id: The ID of the dataset
             """
             return self.client.get_dataset(dataset_id)
+
