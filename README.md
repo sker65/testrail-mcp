@@ -48,6 +48,8 @@ npx -y @smithery/cli install @sker65/testrail-mcp --client claude
    pip install -e .
    ```
 
+4. Install [uv](https://github.com/astral-sh/uv?tab=readme-ov-file#installation) (if you haven't already)
+
 ## Configuration
 
 The TestRail MCP server requires specific environment variables to authenticate with your TestRail instance. These must be set before running the server.
