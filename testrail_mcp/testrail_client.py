@@ -84,7 +84,8 @@ class TestRailClient:
         uri = f'get_cases/{project_id}'
         if suite_id:
             uri += f'&suite_id={suite_id}'
-        return self._send_request('GET', uri)
+        response = self._send_request('GET', uri)
+        return response.get('cases', [])
     
     def add_case(self, section_id: int, data: Dict) -> Dict:
         """Add a new test case."""
@@ -105,7 +106,8 @@ class TestRailClient:
     
     def get_projects(self) -> List[Dict]:
         """Get all projects."""
-        return self._send_request('GET', 'get_projects')
+        response = self._send_request('GET', 'get_projects')
+        return response.get('projects', [])
     
     def add_project(self, data: Dict) -> Dict:
         """Add a new project."""
@@ -126,7 +128,8 @@ class TestRailClient:
     
     def get_runs(self, project_id: int) -> List[Dict]:
         """Get all test runs for a project."""
-        return self._send_request('GET', f'get_runs/{project_id}')
+        response = self._send_request('GET', f'get_runs/{project_id}')
+        return response.get('runs', [])
     
     def add_run(self, project_id: int, data: Dict) -> Dict:
         """Add a new test run."""
