@@ -19,6 +19,14 @@ startCommand:
       testRailApiKey:
         type: string
         description: Your TestRail API key.
+      allowDeletes:
+        type: boolean
+        description: Register destructive delete tools.
+        default: false
+      allowedProjectIds:
+        type: string
+        description: Optional comma-separated project IDs allowed for mutation and delete tools.
+        default: ""
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -28,10 +36,14 @@ startCommand:
       env: {
         TESTRAIL_URL: config.testRailUrl,
         TESTRAIL_USERNAME: config.testRailUsername,
-        TESTRAIL_API_KEY: config.testRailApiKey
+        TESTRAIL_API_KEY: config.testRailApiKey,
+        TESTRAIL_MCP_ALLOW_DELETES: config.allowDeletes ? 'true' : 'false',
+        TESTRAIL_ALLOWED_PROJECT_IDS: config.allowedProjectIds || ''
       }
     })
   exampleConfig:
     testRailUrl: https://example.testrail.io
     testRailUsername: user@example.com
     testRailApiKey: abcdef123456
+    allowDeletes: false
+    allowedProjectIds: ""

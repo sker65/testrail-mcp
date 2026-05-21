@@ -143,6 +143,16 @@ class TestRailClient:
     def delete_run(self, run_id: int) -> Dict:
         """Delete a test run."""
         return self._send_request('POST', f'delete_run/{run_id}')
+
+    # Suites API
+    def get_suite(self, suite_id: int) -> Dict:
+        """Get a test suite by ID."""
+        return self._send_request('GET', f'get_suite/{suite_id}')
+
+    # Tests API
+    def get_test(self, test_id: int) -> Dict:
+        """Get a test by ID."""
+        return self._send_request('GET', f'get_test/{test_id}')
     
     # Results API
     def get_results(self, test_id: int) -> List[Dict]:
