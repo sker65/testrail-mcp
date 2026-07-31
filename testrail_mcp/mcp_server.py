@@ -3,7 +3,11 @@ from typing import Dict, List, Any, Optional, Union
 from fastmcp import FastMCP
 
 from testrail_mcp.testrail_client import TestRailClient
-from testrail_mcp.config import TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY
+from testrail_mcp.config import (
+    TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY,
+    TESTRAIL_CONNECT_TIMEOUT, TESTRAIL_READ_TIMEOUT,
+    TESTRAIL_MAX_RETRIES, TESTRAIL_BACKOFF_BASE,
+)
 
 
 class TestRailMCPServer(FastMCP):
@@ -12,7 +16,12 @@ class TestRailMCPServer(FastMCP):
     def __init__(self):
         """Initialize the TestRail MCP server."""
         super().__init__(name="TestRail MCP Server", version="0.1.3")
-        self.client = TestRailClient(TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY)
+        self.client = TestRailClient(
+            TESTRAIL_URL, TESTRAIL_USERNAME, TESTRAIL_API_KEY,
+            timeout=(TESTRAIL_CONNECT_TIMEOUT, TESTRAIL_READ_TIMEOUT),
+            max_retries=TESTRAIL_MAX_RETRIES,
+            backoff_base=TESTRAIL_BACKOFF_BASE,
+        )
         self._register_tools()
         self._register_resources()
     
@@ -24,9 +33,9 @@ class TestRailMCPServer(FastMCP):
             """Get a project by ID."""
             return self.client.get_project(project_id)
         
-        @self.tool("get_projects", description="Get all projects")
-        def get_projects() -> List[Dict]:
-            """Get all projects."""
+        @self.tool("get_projects", description="Get all projects (auto-paginated)")
+        def get_projects() -> Dict:
+            """Get all projects (auto-paginated)."""
             return self.client.get_projects()
         
         @self.tool("add_project", description="Add a new project")
@@ -104,16 +113,43 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_case(case_id)
         
-        @self.tool("get_cases", description="Get all test cases for a project/suite")
-        def get_cases(project_id: int, suite_id: Optional[int] = None) -> List[Dict]:
+        @self.tool("get_cases",
+                   description="Get test cases for a project/suite with resumable cursor paging. "
+                               "Defaults auto-paginate the whole project. For large projects, set "
+                               "max_pages_per_call and loop using the returned next_offset until "
+                               "is_last is true.")
+        def get_cases(project_id: int, suite_id: Optional[int] = None,
+                      section_id: Optional[int] = None,
+                      created_after: Optional[int] = None,
+                      updated_after: Optional[int] = None,
+                      filter: Optional[str] = None,
+                      offset: int = 0, limit: int = 250,
+                      max_pages_per_call: int = 1000) -> Dict:
             """
-            Get all test cases for a project/suite.
-            
+            Get test cases for a project/suite with resumable cursor paging.
+
             Args:
                 project_id: The ID of the project
                 suite_id: The ID of the test suite (optional)
+                section_id: Restrict to a single section (optional)
+                created_after: Only cases created after this UNIX timestamp (optional)
+                updated_after: Only cases updated after this UNIX timestamp (optional)
+                filter: Substring match on case title (optional)
+                offset: Row offset to start at; pass back next_offset to resume (default 0)
+                limit: Rows per page, max 250 (default 250)
+                max_pages_per_call: Max pages fetched in THIS call. Bound this for
+                    large projects (e.g. 5 -> ~1250 cases/call) to stay under the
+                    request timeout, then loop using next_offset (default 1000).
+
+            Returns:
+                {cases, size, offset, next_offset, is_last, pages_fetched}.
+                Loop while is_last is false, passing offset=next_offset each time.
             """
-            return self.client.get_cases(project_id, suite_id)
+            return self.client.get_cases(
+                project_id, suite_id, section_id,
+                created_after=created_after, updated_after=updated_after,
+                filter=filter, offset=offset, limit=limit,
+                max_pages_per_call=max_pages_per_call)
         
         @self.tool("add_case", description="Add a new test case")
         def add_case(
@@ -254,12 +290,12 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.get_section(section_id)
 
-        @self.tool("get_sections", description="Retrieves all sections for a specified project and or suite")
+        @self.tool("get_sections", description="Retrieves all sections for a specified project and or suite (auto-paginated)")
         def get_sections(
             project_id : int,
             suite_id: Optional[int] = None ) -> Dict:
             """
-            Retrieves all sections for a specified project and suite
+            Retrieves all sections for a specified project and suite (auto-paginated)
             
             Args:
                 project_id: The ID of the project
@@ -351,6 +387,33 @@ class TestRailMCPServer(FastMCP):
                 data["after_id"] = after_id
 
             return self.client.move_section(section_id, data)
+
+        # Attachment tools
+        @self.tool("get_attachments_for_case", description="Get all attachments for a test case")
+        def get_attachments_for_case(
+            case_id: int,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None
+        ) -> Dict:
+            """
+            Get all attachments for a test case.
+
+            Args:
+                case_id: The ID of the test case
+                limit: Number of attachments to return (default 250, requires TestRail 6.7+)
+                offset: Starting position for pagination (requires TestRail 6.7+)
+            """
+            return self.client.get_attachments_for_case(case_id, limit, offset)
+
+        @self.tool("get_attachment", description="Download an attachment by ID. Returns base64-encoded content and content type.")
+        def get_attachment(attachment_id: str) -> Dict:
+            """
+            Download an attachment by ID.
+
+            Args:
+                attachment_id: The ID of the attachment (string to support both integer and UUID formats)
+            """
+            return self.client.get_attachment(attachment_id)
 
         # Run tools
         @self.tool("get_run", description="Get a test run by ID")
@@ -470,16 +533,51 @@ class TestRailMCPServer(FastMCP):
             """
             return self.client.delete_run(run_id)
         
-        # Results tools
-        @self.tool("get_results", description="Get all test results for a test")
-        def get_results(test_id: int) -> List[Dict]:
+        # Tests tools
+        @self.tool("get_tests",
+                   description="Get tests for a run with resumable cursor paging. Defaults "
+                               "auto-paginate. For large runs, set max_pages_per_call and loop "
+                               "using next_offset until is_last is true.")
+        def get_tests(run_id: int, offset: int = 0, limit: int = 250,
+                      max_pages_per_call: int = 1000) -> Dict:
             """
-            Get all test results for a test.
-            
+            Get tests for a test run with resumable cursor paging.
+
+            Args:
+                run_id: The ID of the test run
+                offset: Row offset to start at; pass back next_offset to resume (default 0)
+                limit: Rows per page, max 250 (default 250)
+                max_pages_per_call: Max pages fetched in THIS call (default 1000)
+
+            Returns:
+                {tests, size, offset, next_offset, is_last, pages_fetched}.
+            """
+            return self.client.get_tests(
+                run_id, offset=offset, limit=limit,
+                max_pages_per_call=max_pages_per_call)
+
+        # Results tools
+        @self.tool("get_results",
+                   description="Get results for a test with resumable cursor paging. Defaults "
+                               "auto-paginate. For large tests, set max_pages_per_call and loop "
+                               "using next_offset until is_last is true.")
+        def get_results(test_id: int, offset: int = 0, limit: int = 250,
+                        max_pages_per_call: int = 1000) -> Dict:
+            """
+            Get results for a test with resumable cursor paging.
+
             Args:
                 test_id: The ID of the test
+                offset: Row offset to start at; pass back next_offset to resume (default 0)
+                limit: Rows per page, max 250 (default 250)
+                max_pages_per_call: Max pages fetched in THIS call (default 1000)
+
+            Returns:
+                {results, size, offset, next_offset, is_last, pages_fetched}.
             """
-            return self.client.get_results(test_id)
+            return self.client.get_results(
+                test_id, offset=offset, limit=limit,
+                max_pages_per_call=max_pages_per_call)
         
         @self.tool("add_result", description="Add a new test result")
         def add_result(
@@ -624,9 +722,9 @@ class TestRailMCPServer(FastMCP):
             return self.client.get_run(run_id)
         
         @self.resource("testrail://results/{test_id}")
-        def get_results_resource(test_id: int) -> List[Dict]:
+        def get_results_resource(test_id: int) -> Dict:
             """
-            Get all test results for a test.
+            Get all test results for a test (auto-paginated).
             
             Args:
                 test_id: The ID of the test
